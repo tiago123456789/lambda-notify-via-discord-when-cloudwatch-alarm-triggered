@@ -1,6 +1,6 @@
 ## About
 
-The project has focus to notify via Discord when have 2 situations:
+The project has focus to notify via Discord when cloudwatch alarm is triggered have 2 situations:
 - Lambda function has a lot errors
 - When queue has a lot messages
 
