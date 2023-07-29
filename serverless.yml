@@ -1,0 +1,37 @@
+service: notify-via-discord
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, "dev"}
+  region: us-east-1
+  environment:
+    WEBHOOK_URL: ${file(serverless.env.yml):${self:provider.stage}.webhook_url}
+
+functions:
+  notifyHasAlotMssageInQueue:
+    handler: handlerAlarmAlotMessageInQueue.handler
+    events:
+    - sns:
+        arn: !Ref AlarmNotifyDiscordAlotMessageInQueue
+        topicName: Fn::GetAtt ["AlarmSNSToNotifyDiscordAlotMessageInQueue", "TopicName"]
+
+  notifyLambdaHasManyError:
+    handler: handlerAlarmLambdaHasManyErrors.handler
+    events:
+    - sns:
+        arn: !Ref AlarmNotifyDiscordHasErrorsInLambda
+        topicName: Fn::GetAtt ["AlarmNotifyDiscordHasErrorsInLambda", "TopicName"]
+
+resources:
+  Resources:
+    AlarmNotifyDiscordHasErrorsInLambda:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${file(serverless.env.yml):${self:provider.stage}.alarm_notify_has_errors_lambda}
+    AlarmNotifyDiscordAlotMessageInQueue:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${file(serverless.env.yml):${self:provider.stage}.alarm_notify_alot_message_queue_topic_name}
